@@ -1,0 +1,207 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Title</title>#}
+{#</head>#}
+{#<body>#}
+{#<ul>#}
+{#    {% for server in server_list %}#}
+{#        <li>{{ server.hostname }}={{ server.server_status_id_name }}</li>#}
+{##}
+{##}
+{#{% endfor %}#}
+{##}
+{#</ul>#}
+{##}
+{##}
+{##}
+{##}
+{##}
+{#</body>#}
+{#</html>#}
+
+
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .edit-mode{
+            background-color: #b3b3b3;
+            padding: 8px;
+            text-decoration: none;
+            color: white;
+        }
+        .editing{
+            background-color: #f0ad4e;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="padding: 20px">
+        <input type="button" onclick="CheckAll('#edit_mode', '#tb1');" value="全选" />
+        <input type="button" onclick="CheckReverse('#edit_mode', '#tb1');" value="反选" />
+        <input type="button" onclick="CheckCancel('#edit_mode', '#tb1');" value="取消" />
+
+        <a id="edit_mode" class="edit-mode" href="javascript:void(0);"  onclick="EditMode(this, '#tb1');">进入编辑模式</a>
+
+    </div>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>选择</th>
+            <th>主机名</th>
+            <th>端口</th>
+            <th>状态</th>
+        </tr>
+        </thead>
+        <tbody id="tb1">
+            <tr>
+                <td><input type="checkbox"/></td>
+                <td edit="true">v1</td>
+                <td>v11</td>
+                <td edit="true" edit-type="select" sel-val="1" global-key="STATUS">在线</td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" /></td>
+                <td edit="true">v1</td>
+                <td>v11</td>
+                <td edit="true" edit-type="select" sel-val="2" global-key="STATUS">下线</td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" /></td>
+                <td edit="true">v1</td>
+                <td>v11</td>
+                <td edit="true" edit-type="select" sel-val="1" global-key="STATUS">在线</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script  src='/static/js/jquery-3.2.1.js'></script>
+
+
+    <script>
+        STATUS = [
+        {'id': 1, 'value': "在线"},
+        {'id': 2, 'value': "下线"}
+    ];
+        $(function(){
+    BindSingleCheck('#edit_mode', '#tb1');
+    });
+        function BindSingleCheck(mode,td) {
+{#            alert(123)#}
+            $(td).find(':checkbox').bind('click',function () {
+                var tr=$(this).parent().parent()
+                if($(this).prop('checked')){
+{#                    $(this).prop('checked',true)#}
+                    RowIntoEdit(tr)
+            }else {
+{#                    $(this).prop('checked',false)#}
+                tr.children().each(function () {
+                    var input = "<input type='checkbox' />";
+                    $(tr).children().first().html(input);
+                    var valse=$(this).children().first().val();
+                    $(this).text(valse);})
+                }
+            })
+        }
+
+
+        function RowIntoEdit(tr) {
+            tr.children().each(function () {
+                if ($(this).attr('edit') == 'true') {
+                    if ($(this).attr('edit-type') == 'select') {
+                        var sel = $(this).attr('sel-val');
+                        var status = $(this).attr('global-key');
+                        var select = document.createElement('select');
+                        {#                                console.log(window[status])#}
+                        $.each(window[status], function (k, v) {
+                            var option = document.createElement('option');
+                            {#                                  console.log(option)#}
+                            sel_key = v.id
+                            sel_values = v.value
+                            if (sel_key == sel) {
+                                $(option).text(sel_values).attr('value', sel_values).attr('text', sel_values).attr('selected', true)
+                                $(select).append(option)
+                            } else {
+                                $(option).text(sel_values).attr('value', sel_values).attr('text', sel_values)
+
+                                $(select).append(option)
+                            }
+
+
+                        })
+
+                        $(this).html(select)
+
+                    } else {
+                        var values = $(this).text();
+                        var input = "<input value='" + values + "' />";
+                        $(this).html(input)
+                    }
+
+                }
+
+            })
+        }
+
+
+        //全选
+        function CheckAll(edit_mode, tb) {
+            $(tb).find('tr').each(function () {
+                var tr = $(this);
+                var box = tr.children().first().find(':checkbox');
+                if (box.prop('checked')) {
+
+                } else {
+                    box.prop('checked', true);
+                    RowIntoEdit(tr)
+
+                }
+            })
+        }
+
+
+        //取消
+        function CheckCancel(edit_mode,tb) {
+             $(tb).find('tr').each(function (){
+                var tr = $(this);
+                var box = tr.children().first().find(':checkbox');
+                if(box.prop('checked')){
+                    box.prop('checked',false);
+                    tr.children().each(function () {
+                         var input = "<input type='checkbox' />";
+                        $(tr).children().first().html(input);
+                         var valse=$(this).children().first().val();
+                            $(this).text(valse);
+                    })
+                }else{
+{#                    box.prop('checked',true);#}
+
+
+                }
+            })
+        }
+
+
+        //反选
+
+        function CheckReverse(edit_mode,tb) {
+             $(tb).find('tr').each(function () {
+                var tr = $(this);
+                var box = tr.children().first().find(':checkbox');
+                if(box.prop('checked')){
+                    box.prop('checked',false);
+                }else{
+                    box.prop('checked',true);
+
+                }
+            })
+        }
+
+
+</body>
+</html>
